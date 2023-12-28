@@ -1,35 +1,34 @@
 const express = require('express');
-const cors = require('cors');
 const fs = require('fs');
+const cors = require('cors');
 const app = express();
-const port = 5000;
+const port = 5000; // Choose a port number
 
 app.use(cors());
-app.use(express.json());
+const admin = require('firebase-admin');
+const serviceAccount = require('C:\\Users\\anush\\Downloads\\expense-tracker-6c710-firebase-adminsdk-3df4p-5fd430dfbc.json');
 
-// Read the data from the JSON file
-let jsonData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
-console.log(jsonData)
-app.post('/processNumbers', (req, res) => {
-  const { numbers } = req.body;
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://expense-tracker-6c710.firebaseio.com',
+});
 
-  // Process the numbers and change corresponding values to "ritik" in the JSON file
-  numbers.forEach((num) => {
-    // Determine the dictionary key and value key based on the input number
-    const dictionaryKey = `dictionary${num % 2 + 1}`;
-    const valueKey = `value${num % 3 + 1}`;
-
-    // Change the corresponding value to "ritik" in the JSON file
-    jsonData[dictionaryKey][valueKey] = "ritik";
+app.use(express.json()); // Add this line to parse JSON requests
+app.post('/updateName', async (req, res) => {
+    try {
+      const { newName } = req.body;
+  
+      // Update the name in Firestore for the hardcoded user ID 'user123'
+      const userRef = admin.firestore().collection('users').doc('user123');
+      await userRef.update({ name: newName });
+  
+      res.json({ message: `Name updated to "${newName}" for user with ID 'user123'.` });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   });
-
-  // Write the updated JSON data back to the file
-  fs.writeFileSync('data.json', JSON.stringify(jsonData, null, 2), 'utf-8');
-
-  res.json(jsonData);
-//   return jsonData
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+  
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
