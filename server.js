@@ -6,7 +6,7 @@ const port = 5000; // Choose a port number
 
 app.use(cors());
 const admin = require('firebase-admin');
-const serviceAccount = require('C:\\Users\\anush\\Downloads\\expense-tracker-6c710-firebase-adminsdk-3df4p-5fd430dfbc.json');
+const serviceAccount = require('./expense-tracker-6c710-firebase-adminsdk-3df4p-5fd430dfbc.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
