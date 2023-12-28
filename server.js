@@ -9,7 +9,7 @@ app.use(express.json());
 
 // Read the data from the JSON file
 let jsonData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
-
+console.log(jsonData)
 app.post('/processNumbers', (req, res) => {
   const { numbers } = req.body;
 
