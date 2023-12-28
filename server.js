@@ -26,8 +26,8 @@ app.post('/processNumbers', (req, res) => {
   // Write the updated JSON data back to the file
   fs.writeFileSync('data.json', JSON.stringify(jsonData, null, 2), 'utf-8');
 
-  res.json({ message: 'Values changed to "ritik" in the JSON file.' });
-  return jsonData
+  res.json(jsonData);
+//   return jsonData
 });
 
 app.listen(port, () => {
