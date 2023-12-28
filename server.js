@@ -13,6 +13,9 @@ admin.initializeApp({
   databaseURL: 'https://expense-tracker-6c710.firebaseio.com',
 });
 
+const db = admin.firestore();
+
+
 app.use(express.json()); // Add this line to parse JSON requests
 app.post('/updateName', async (req, res) => {
     try {
