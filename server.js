@@ -4,14 +4,19 @@ const path = require('path');
 const app = express();
 const port = 5000;
 const cors = require('cors');
-
+const admin = require('firebase-admin');
+const serviceAccount = require('./expense-tracker-6c710-firebase-adminsdk-3df4p-5fd430dfbc.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://expense-tracker-6c710.firebaseio.com'
+});
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'build')));
 
 // Routing for different pages
 app.use('/investments', require('./routes/investments'));
-app.use('/expenses', require('./routes/expenses'));
+app.use('/travelexpenses', require('./routes/travelexpenses'));
 
 // Catch-all route to serve the React app
 app.get('*', express.static(path.join(__dirname, 'build')));
