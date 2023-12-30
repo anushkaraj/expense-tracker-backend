@@ -2,23 +2,13 @@ const admin = require('firebase-admin');
 const express = require('express');
 const router = express.Router();
 
-
-
-
-// Function to add a new record
 router.post('/addRecord', (req, res) => {
   const { category,amount, date, description } = req.body;
   const dateObject = new Date(date);
   const year = dateObject.getFullYear();
   const month = dateObject.toLocaleString('en-us', { month: 'long' });
-
-  // Get a reference to the Firestore database
   const db = admin.firestore();
-
-  // Specify the path to your document
   const docPath = `investments/investment`; // Dynamically use the category received from React
-
-  // Retrieve the document
   const docRef = db.doc(docPath);
 
   docRef.get()
@@ -27,10 +17,7 @@ router.post('/addRecord', (req, res) => {
         console.log('No such document!');
         res.status(404).send('Document not found');
       } else {
-        // Access the data
         const data = doc.data();
-
-        // Add the new record
         if(!data.investments[category])
         {
           data.investments[category]={};
@@ -42,7 +29,6 @@ router.post('/addRecord', (req, res) => {
         if (!data.investments[category][year][month]) {
           data.investments[category][year][month] = {};
         }
-
         const newInvestmentKey = `investment${Object.keys(data.investments[category][year][month]).length + 1}`;
         data.investments[category][year][month][newInvestmentKey] = {
           amount,
@@ -50,13 +36,11 @@ router.post('/addRecord', (req, res) => {
           description
         };
         console.log(data)
-        // Update the document
         return docRef.update(data);
       }
     })
     .then(() => {
       console.log('Document updated with new record');
-      // Send the complete JSON data as a response
       return docRef.get();
     })
     .then(doc => {
@@ -69,7 +53,6 @@ router.post('/addRecord', (req, res) => {
     });
 });
 
-// Function to delete a record
 router.post('/deleteRecord', (req, res) => {
   console.log(req.body)
   const { category, date, investmentKey } = req.body;
@@ -78,13 +61,9 @@ router.post('/deleteRecord', (req, res) => {
   const dateObject = new Date(date);
   const year = dateObject.getFullYear();
   const month = dateObject.toLocaleString('en-us', { month: 'long' });
-  // Get a reference to the Firestore database
   const db = admin.firestore();
 
-  // Specify the path to your document
-  const docPath = `investments/investment`; // Dynamically use the category received from React
-
-  // Retrieve the document
+  const docPath = `investments/investment`; 
   const docRef = db.doc(docPath);
 
   docRef.get()
@@ -93,15 +72,19 @@ router.post('/deleteRecord', (req, res) => {
         console.log('No such document!');
         res.status(404).send('Document not found');
       } else {
-        // Access the data
         const data = doc.data();
-
-        // Check if the record exists before deleting
         if (data.investments[category][year] && data.investments[category][year][month] && data.investments[category][year][month][investmentKey]) {
-          // Delete the specified record
           delete data.investments[category][year][month][investmentKey];
           console.log('Record deleted successfully');
-          // Update the document
+        if (Object.keys(data.investments[category][year][month]).length === 0) {
+            delete data.investments[category][year][month];
+        }
+        if (Object.keys(data.investments[category][year]).length === 0) {
+            delete data.investments[category][year];
+        }
+        if (Object.keys(data.investments[category]).length === 0) {
+            delete data.investments[category];
+        }
           return docRef.update(data);
         } else {
           console.log('Record not found!');
@@ -109,7 +92,6 @@ router.post('/deleteRecord', (req, res) => {
       }
     })
     .then(() => {
-      // Send the complete JSON data as a response
       return docRef.get();
     })
     .then(doc => {
@@ -121,15 +103,10 @@ router.post('/deleteRecord', (req, res) => {
       res.status(500).send('Internal server error');
     });
 });
-// Function to get the complete JSON data
+
 router.get('/getCompleteData', (req, res) => {
-    // Get a reference to the Firestore database
     const db = admin.firestore();
-  
-    // Specify the path to your document
     const docPath = 'investments/investment';
-  
-    // Retrieve the document
     const docRef = db.doc(docPath);
   
     docRef.get()
@@ -138,7 +115,6 @@ router.get('/getCompleteData', (req, res) => {
           console.log('No such document!');
           res.status(404).send('Document not found');
         } else {
-          // Access the data and send it as a JSON response
           const data = doc.data();
           res.status(200).json(data);
         }
